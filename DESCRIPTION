@@ -1,0 +1,13 @@
+Package: materialdashboard
+Title: Dashboard with a material design
+Version: 0.0.1
+Description: Dashboard with a material design
+Depends: R (>= 3.0.2)
+Imports: 
+Suggests: 
+License: MIT + file LICENSE
+URL: https://github.com/flovouin/materialdashboard
+BugReports: https://github.com/flovouin/materialdashboard/issues
+Encoding: UTF-8
+LazyData: true
+KeepSource: true
