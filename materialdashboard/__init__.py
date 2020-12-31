@@ -49,3 +49,9 @@ _css_dist = []
 for _component in __all__:
     setattr(locals()[_component], '_js_dist', _js_dist)
     setattr(locals()[_component], '_css_dist', _css_dist)
+
+
+external_stylesheets = [
+    "https://fonts.googleapis.com/icon?family=Material+Icons",
+    "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap",
+]
