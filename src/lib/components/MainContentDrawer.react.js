@@ -45,14 +45,7 @@ const useStyles = makeStyles((theme) => ({
 const MainContentDrawer = (props) => {
     const classes = useStyles();
 
-    const {
-        children,
-        id,
-        open,
-        pages,
-        selectedPage,
-        setProps
-    } = props;
+    const { children, id, open, pages, value, setProps } = props;
 
     return (
         <>
@@ -65,9 +58,9 @@ const MainContentDrawer = (props) => {
                 <div>
                     <List>
                         {pages.map((page) => (
-                            <ListItem button key={page.title} selected={page.id === selectedPage}
-                                onClick={() => setProps({ selectedPage: page.id })}>
-                                <ListItemText primary={page.title} />
+                            <ListItem button key={page.value} selected={page.value === value}
+                                onClick={() => setProps({ value: page.value })}>
+                                <ListItemText primary={page.label} />
                             </ListItem>
                         ))}
                     </List>
@@ -96,7 +89,7 @@ MainContentDrawer.propTypes = {
     /**
      * The ID of the component.
      */
-    id: PropTypes.string.isRequired,
+    id: PropTypes.string,
 
     /**
      * Whether the drawer is open.
@@ -105,17 +98,17 @@ MainContentDrawer.propTypes = {
 
     /**
      * The list of pages, as dictionary elements:
-     * {"id": "pageId", "title": "Displayed title"}
+     * {"value": "pageId", "label": "Displayed title"}
      */
     pages: PropTypes.arrayOf(PropTypes.shape({
-        id: PropTypes.string.isRequired,
-        title: PropTypes.string.isRequired
-    })).isRequired,
+        value: PropTypes.string.isRequired,
+        label: PropTypes.string.isRequired
+    })),
 
     /**
      * The ID of the currently selected page.
      */
-    selectedPage: PropTypes.string.isRequired,
+    value: PropTypes.string,
 
     /**
      * Dash-assigned callback that should be called to report property changes
