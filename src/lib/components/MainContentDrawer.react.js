@@ -37,6 +37,9 @@ const useStyles = makeStyles((theme) => ({
         }),
         marginLeft: 0,
     },
+    root: {
+        display: 'flex',
+    }
 }));
 
 /**
@@ -48,7 +51,7 @@ const MainContentDrawer = (props) => {
     const { children, id, open, pages, value, setProps } = props;
 
     return (
-        <>
+        <div className={classes.root}>
             <CssBaseline />
 
             <Drawer id={id} className={classes.drawer} variant="persistent" anchor="left" open={open}
@@ -72,7 +75,7 @@ const MainContentDrawer = (props) => {
 
                 {children}
             </main>
-        </>
+        </div>
     );
 }
 
