@@ -22,13 +22,7 @@ const useStyles = makeStyles((theme) => ({
 const TopAppBar = (props) => {
     const classes = useStyles();
 
-    const {
-        children,
-        id,
-        n_menu_clicks,
-        title,
-        setProps
-    } = props;
+    const { children, id, n_menu_clicks, title, setProps } = props;
 
     return (
         <div className={classes.root}>
@@ -64,7 +58,7 @@ TopAppBar.propTypes = {
     /**
      * The ID used to identify this component in Dash callbacks.
      */
-    id: PropTypes.string.isRequired,
+    id: PropTypes.string,
 
     /**
      * Clicks made on the menu button.
@@ -74,7 +68,7 @@ TopAppBar.propTypes = {
     /**
      * A title displayed at the top of the dashboard.
      */
-    title: PropTypes.string.isRequired,
+    title: PropTypes.string,
 
     /**
      * Dash-assigned callback that should be called to report property changes
