@@ -1,0 +1,10 @@
+{
+    "documentation": "",
+    "persistentProps": ["value"],
+    "extraProperties": [],
+    "events": {
+        "onChange": {
+            "setProperty": "value"
+        }
+    }
+}
