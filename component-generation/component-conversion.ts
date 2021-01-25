@@ -18,7 +18,9 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker, allowCompl
         throw new Error(`Failed to find propType for ${checker.typeToString(sourceType)}.`);
     }
 
-    if (ts.TypeFlags.Boolean & sourceType.flags) {
+    if ((ts.TypeFlags.Boolean & sourceType.flags) === ts.TypeFlags.Boolean
+        // It might happen that a boolean property might be declared as only a 'false' or 'true' literal.
+        || checker.typeToString(sourceType) === 'false') {
         return 'PropTypes.bool';
     }
 
@@ -70,8 +72,7 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker, allowCompl
 function convertComponentPropertiesToView(properties: ComponentProperty[],
                                           checker: ts.TypeChecker): ComponentViewProperty[] {
     return properties.flatMap(property => {
-        if (['component', 'classes', 'innerRef', 'style'].includes(property.name)
-            || property.name.startsWith('aria-')) {
+        if (['component', 'innerRef'].includes(property.name) || property.name.startsWith('aria-')) {
             console.warn(`Skipping property ${property.name}.`);
             return [];
         }
@@ -90,6 +91,12 @@ function convertComponentPropertiesToView(properties: ComponentProperty[],
 
             return { ...property, propType, forwardProperty: true };
         } catch (e) {
+            if (property.name === 'classes') {
+                return { ...property, propType: 'PropTypes.object', forwardProperty: true };
+            } else if (property.name === 'style') {
+                return { ...property, propType: 'PropTypes.object', forwardProperty: true };
+            }
+
             console.warn(`Could not create PropType, skipping property ${property.name}: ${e}`);
         }
 

@@ -26,6 +26,8 @@ function getViewsForExportedComponentsInSourceFile(sourceFile: SourceFile, check
         const declaration = keyDeclarations[0];
 
         try {
+            console.log(`Trying to extract component from declaration ${key}...`);
+
             const component = createComponentFromNode(key, declaration.compilerNode, checker);
             const componentView = createView(component, checker);
             componentViews.push(componentView);
