@@ -1,7 +1,13 @@
 {
     "documentation": "",
     "persistentProps": [],
-    "extraProperties": [],
+    "extraProperties": [{
+      "name": "id",
+      "documentation": [],
+      "stringDefault": "",
+      "propType": "PropTypes.string",
+      "forwardProperty": true
+  }],
     "events": {
         "onChange": {
             "code": "(e, value) => { setProps({ value }); console.log(value); }"

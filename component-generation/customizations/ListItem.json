@@ -1,0 +1,23 @@
+{
+  "documentation": "",
+  "persistentProps": [],
+  "extraProperties": [{
+      "name": "id",
+      "documentation": [],
+      "stringDefault": "",
+      "propType": "PropTypes.string",
+      "forwardProperty": true
+  },
+  {
+        "name": "n_clicks",
+        "documentation": [],
+        "stringDefault": "0",
+        "propType": "PropTypes.number",
+        "forwardProperty": false
+  }],
+  "events": {
+    "onClick": {
+      "incrementProperty": "n_clicks"
+    }
+  }
+}
