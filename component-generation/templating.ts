@@ -78,6 +78,10 @@ export function writeComponents(componentViews: ComponentView[], destinationPath
                                 componentDirectory: string): void {
     const componentDirectoryPath = path.join(destinationPath, componentDirectory);
 
+    if (!fs.existsSync(componentDirectoryPath)) {
+        fs.mkdirSync(componentDirectoryPath, { recursive: true });
+    }
+
     componentViews.forEach(component => {
         // Mustache is a simple template system, and any "advanced" filtering needs to happen outside of the template.
         const renderedComponent = Mustache.render(COMPONENT_TEMPLATE, {
