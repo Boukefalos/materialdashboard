@@ -12,6 +12,7 @@
   "homepage": "https://github.com/flovouin/materialdashboard",
   "main": "build/index.js",
   "scripts": {
+    "generate": "ts-node ./component-generation/generate-components.ts",
     "start": "webpack-serve --config ./webpack.serve.config.js --open --port 8888",
     "validate-init": "python _validate_init.py",
     "prepublishOnly": "npm run validate-init",
