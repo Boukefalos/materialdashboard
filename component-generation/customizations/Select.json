@@ -1,0 +1,16 @@
+{
+    "documentation": "",
+    "persistentProps": ["value"],
+    "extraProperties": [{
+        "name": "value",
+        "documentation": ["The selected value, amongst the child menu items."],
+        "stringDefault": "''",
+        "propType": "PropTypes.string",
+        "forwardProperty": true
+    }],
+    "events": {
+        "onChange": {
+            "setProperty": "value"
+        }
+    }
+}

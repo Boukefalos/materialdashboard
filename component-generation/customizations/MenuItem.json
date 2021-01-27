@@ -1,0 +1,12 @@
+{
+    "documentation": "",
+    "persistentProps": [],
+    "extraProperties": [{
+        "name": "value",
+        "documentation": ["The value represented by this menu item."],
+        "stringDefault": "''",
+        "propType": "PropTypes.string",
+        "forwardProperty": true
+    }],
+    "events": {}
+}

@@ -8,5 +8,6 @@ materialdashboard.egg-info/
 NAMESPACE
 node_modules/
 R/
+src/lib/
 src/*.jl
 venv/
