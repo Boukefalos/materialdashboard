@@ -128,6 +128,26 @@ function addPersistenceProperties(properties: ComponentViewProperty[],
 }
 
 /**
+ * Adds base properties that should be present for all components if they do not exist already.
+ *
+ * @param properties The existing properties.
+ * @returns The new list of properties.
+ */
+function addBaseProperties(properties: ComponentViewProperty[]): ComponentViewProperty[] {
+    let props = properties;
+
+    props = tryAddProperty(props, {
+        name: 'id',
+        documentation: ['The ID of this component, used to identify dash components in callbacks.\nThe ID needs to be unique across all of the components in an app.'],
+        propType: 'PropTypes.string',
+        stringDefault: '',
+        forwardProperty: true,
+    }, false);
+
+    return props;
+}
+
+/**
  * Creates the list of events that will be then added to the component.
  *
  * @param events The dictionary of events to create.
@@ -181,6 +201,8 @@ export function customizeComponent(component: ComponentView): ComponentView {
             events = createEvents(customization.events);
         }
     }
+
+    properties = addBaseProperties(properties);
 
     return {
         name: component.name,

@@ -2,13 +2,6 @@
   "documentation": "",
   "persistentProps": [],
   "extraProperties": [{
-      "name": "id",
-      "documentation": [],
-      "stringDefault": "",
-      "propType": "PropTypes.string",
-      "forwardProperty": true
-  },
-  {
         "name": "n_clicks",
         "documentation": [],
         "stringDefault": "0",
