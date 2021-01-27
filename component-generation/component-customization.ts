@@ -242,6 +242,33 @@ function createEvents(component: ComponentView, events: ComponentCustomizationEv
 }
 
 /**
+ * Adds events that can easily be deduced from skipped properties to the given component.
+ *
+ * @param component The component to which events will be added.
+ * @param skippedProperties The list of properties that could not be automatically converted into Dash properties. This
+ *     will be searched for known properties corresponding to events.
+ */
+function addBaseEvents(component: ComponentView, skippedProperties: SkippedProperty[]) {
+    const onClickPropertyIndex = skippedProperties.findIndex(p => p.name === 'onClick');
+    if (onClickPropertyIndex >= 0) {
+        tryAddProperty(component, {
+            name: 'n_clicks',
+            documentation: ['An integer that represents the number of times that this element has been clicked on.'],
+            propType: 'PropTypes.number',
+            stringDefault: '0',
+            forwardProperty: false,
+        }, true);
+
+        tryAddEvent(component, {
+            name: 'onClick',
+            code: '() => setProps({ n_clicks: n_clicks + 1 })',
+        }, true);
+
+        skippedProperties.splice(onClickPropertyIndex, 1);
+    }
+}
+
+/**
  * Transforms a component view with "manual" customization providing specificities for this component that could not be
  * inferred from its TypeScript definition.
  *
@@ -265,4 +292,5 @@ export function customizeComponent(component: ComponentView, skippedProperties: 
     }
 
     addBaseProperties(component, skippedProperties);
+    addBaseEvents(component, skippedProperties);
 }
