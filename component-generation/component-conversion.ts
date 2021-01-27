@@ -95,12 +95,6 @@ function convertComponentPropertiesToView(properties: ComponentProperty[],
 
             return { ...property, propType, forwardProperty: true };
         } catch (e) {
-            if (property.name === 'classes') {
-                return { ...property, propType: 'PropTypes.object', forwardProperty: true };
-            } else if (property.name === 'style') {
-                return { ...property, propType: 'PropTypes.object', forwardProperty: true };
-            }
-
             skippedProperties.push({
                 ...property,
                 typeAsString
@@ -132,5 +126,10 @@ export function createView(componentDefinition: ComponentDefinition, checker: ts
         events: [],
     };
     customizeComponent(componentView, skippedProperties);
+
+    if (skippedProperties.length > 0) {
+        const skippedPropertiesNames = skippedProperties.map(p => p.name).join(', ');
+        console.warn(`Skipped properties for component ${componentView.name}: ${skippedPropertiesNames}`);
+    }
     return componentView;
 }

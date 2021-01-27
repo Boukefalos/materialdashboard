@@ -160,8 +160,10 @@ function addPersistenceProperties(component: ComponentView, persistedProperties:
  * Adds base properties that should be present for all components if they do not exist already.
  *
  * @param component The component to which the properties should be added.
+ * @param skippedProperties The properties that could not be converted automatically. If "base" properties are found in
+ *     it, they will be added with the know PropType.
  */
-function addBaseProperties(component: ComponentView) {
+function addBaseProperties(component: ComponentView, skippedProperties: SkippedProperty[]) {
     tryAddProperty(component, {
         name: 'id',
         documentation: ['The ID of this component, used to identify dash components in callbacks.\nThe ID needs to be unique across all of the components in an app.'],
@@ -169,6 +171,45 @@ function addBaseProperties(component: ComponentView) {
         stringDefault: '',
         forwardProperty: true,
     }, false);
+
+    const classesPropertyIndex = skippedProperties.findIndex(p => p.name === 'classes');
+    if (classesPropertyIndex >= 0) {
+        tryAddProperty(component, {
+            name: 'classes',
+            documentation: skippedProperties[classesPropertyIndex].documentation,
+            propType: 'PropTypes.object',
+            stringDefault: '',
+            forwardProperty: true,
+        }, false);
+
+        skippedProperties.splice(classesPropertyIndex, 1);
+    }
+
+    const stylePropertyIndex = skippedProperties.findIndex(p => p.name === 'style');
+    if (stylePropertyIndex >= 0) {
+        tryAddProperty(component, {
+            name: 'style',
+            documentation: skippedProperties[stylePropertyIndex].documentation,
+            propType: 'PropTypes.object',
+            stringDefault: '',
+            forwardProperty: true,
+        }, false);
+
+        skippedProperties.splice(stylePropertyIndex, 1);
+    }
+
+    const childrenPropertyIndex = skippedProperties.findIndex(p => p.name === 'children');
+    if (childrenPropertyIndex >= 0) {
+        tryAddProperty(component, {
+            name: 'children',
+            documentation: skippedProperties[childrenPropertyIndex].documentation,
+            propType: 'PropTypes.node',
+            stringDefault: '',
+            forwardProperty: true,
+        }, false);
+
+        skippedProperties.splice(childrenPropertyIndex, 1);
+    }
 }
 
 /**
@@ -223,5 +264,5 @@ export function customizeComponent(component: ComponentView, skippedProperties: 
         }
     }
 
-    addBaseProperties(component);
+    addBaseProperties(component, skippedProperties);
 }
