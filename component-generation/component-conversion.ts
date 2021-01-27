@@ -1,5 +1,5 @@
 import * as ts from 'typescript';
-import { customizeComponent } from './component-customization';
+import { customizeComponent, SkippedProperty } from './component-customization';
 
 import { ComponentView, ComponentViewProperty } from './templating';
 import { ComponentDefinition, ComponentProperty } from './type-checking';
@@ -70,17 +70,21 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker, allowCompl
  * @returns The property "views".
  */
 function convertComponentPropertiesToView(properties: ComponentProperty[],
-                                          checker: ts.TypeChecker): ComponentViewProperty[] {
-    return properties.flatMap(property => {
-        if (['component', 'innerRef'].includes(property.name) || property.name.startsWith('aria-')) {
-            console.warn(`Skipping property ${property.name}.`);
-            return [];
-        }
+                                          checker: ts.TypeChecker): { viewProperties: ComponentViewProperty[],
+                                                                      skippedProperties: SkippedProperty[] } {
+    const skippedProperties: SkippedProperty[] = [];
+
+    const viewProperties: ComponentViewProperty[] = properties.flatMap(property => {
+        const typeAsString = checker.typeToString(property.type);
 
         try {
+            if (['component', 'innerRef'].includes(property.name) || property.name.startsWith('aria-')) {
+                throw new Error(`Skipping property ${property.name}.`);
+            }
+
             let propType: string;
             // TODO(flo): Move inside `createPropType`.
-            if ((checker.typeToString(property.type) === 'ReactNode') && (property.name !== 'children')) {
+            if ((typeAsString === 'ReactNode') && (property.name !== 'children')) {
                 // Dash only supports the `children` property to pass child nodes. However other `ReactNode` properties
                 // might still be worth exposing as `any` such that we can still pass a string to them for example.
                 console.warn(`Defining node property ${property.name} as any instead of ReactNode.`);
@@ -97,11 +101,16 @@ function convertComponentPropertiesToView(properties: ComponentProperty[],
                 return { ...property, propType: 'PropTypes.object', forwardProperty: true };
             }
 
-            console.warn(`Could not create PropType, skipping property ${property.name}: ${e}`);
+            skippedProperties.push({
+                ...property,
+                typeAsString
+            });
         }
 
         return [];
-    })
+    });
+
+    return { viewProperties, skippedProperties };
 }
 
 /**
@@ -112,11 +121,16 @@ function convertComponentPropertiesToView(properties: ComponentProperty[],
  * @returns The component view.
  */
 export function createView(componentDefinition: ComponentDefinition, checker: ts.TypeChecker): ComponentView {
-    const properties = convertComponentPropertiesToView(componentDefinition.properties, checker);
-    const componentView = customizeComponent({
+    const {
+        viewProperties,
+        skippedProperties,
+    } = convertComponentPropertiesToView(componentDefinition.properties, checker);
+
+    const componentView = {
         name: componentDefinition.name,
-        properties: properties,
+        properties: viewProperties,
         events: [],
-    });
+    };
+    customizeComponent(componentView, skippedProperties);
     return componentView;
 }
