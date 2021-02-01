@@ -21,7 +21,7 @@ jobs:
           pip install wheel==0.36.2
           pip install -r requirements.txt
       - name: Lint
-        run: ./node_modules/.bin/eslint --ext .ts,.js .
+        run: npm run lint
       - name: Generate components
         run: npm run generate
       - name: Build

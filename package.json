@@ -20,7 +20,8 @@
     "build:py_and_r": "dash-generate-components ./src/lib/components materialdashboard -p package-info.json --r-prefix '' --jl-prefix ''",
     "build:py_and_r-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:py_and_r)",
     "build": "npm run build:js && npm run build:py_and_r",
-    "build:activated": "npm run build:js && npm run build:py_and_r-activated"
+    "build:activated": "npm run build:js && npm run build:py_and_r-activated",
+    "lint": "eslint --ext .ts,.js ."
   },
   "author": "Flo Vouin <florent.vouin@gmail.com>",
   "license": "MIT",
