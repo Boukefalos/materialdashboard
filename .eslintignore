@@ -1,2 +1,12 @@
-*.css
-registerServiceWorker.js
+component-generation/templates/
+deps/
+dist/
+inst/
+man/
+materialdashboard/
+materialdashboard.egg-info/
+node_modules/
+R/
+src/lib/components/
+tests/
+venv/
