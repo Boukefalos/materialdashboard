@@ -65,6 +65,14 @@ export interface ComponentView {
      * Events of the underlying Material-UI component that should be implemented.
      */
     events: ComponentViewEvent[];
+    /**
+     * Extra imports that should be added at the top of the source file.
+     */
+    imports: string[];
+    /**
+     * Additional code that should be added to the component function, before it returns the Material-UI component.
+     */
+    extraCode: string[];
 }
 
 /**
