@@ -46,6 +46,14 @@ interface ComponentCustomization {
      * A list of events from the underlying component to handle.
      */
     events?: ComponentCustomizationEvents;
+    /**
+     * Extra imports that should be added at the top of the source file.
+     */
+    imports?: string[];
+    /**
+     * Additional code that should be added to the component function, before it returns the Material-UI component.
+     */
+    extraCode?: string[];
 }
 
 /**
@@ -278,6 +286,14 @@ function addBaseEvents(component: ComponentView, skippedProperties: SkippedPrope
 export function customizeComponent(component: ComponentView, skippedProperties: SkippedProperty[]): void {
     const customization = loadCustomization(component.name);
     if (customization) {
+        if (customization.imports) {
+            component.imports = customization.imports;
+        }
+
+        if (customization.extraCode) {
+            component.extraCode = customization.extraCode;
+        }
+
         if (customization.persistentProps.length > 0) {
             addPersistenceProperties(component, customization.persistentProps);
         }
