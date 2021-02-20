@@ -120,10 +120,12 @@ export function createView(componentDefinition: ComponentDefinition, checker: ts
         skippedProperties,
     } = convertComponentPropertiesToView(componentDefinition.properties, checker);
 
-    const componentView = {
+    const componentView: ComponentView = {
         name: componentDefinition.name,
         properties: viewProperties,
         events: [],
+        imports: [],
+        extraCode: [],
     };
     customizeComponent(componentView, skippedProperties);
 

@@ -1,6 +1,9 @@
 import { {{name}} as MUI{{name}} } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import React from 'react';
+{{#imports}}
+{{.}}
+{{/imports}}
 
 /**
 * Material-UI {{name}}.
@@ -16,6 +19,10 @@ const {{name}} = (props) => {
         setProps,
         ...propsToForward
     } = props;
+
+    {{#extraCode}}
+    {{.}}
+    {{/extraCode}}
 
     return <MUI{{name}} {...propsToForward}
         {{#events}}

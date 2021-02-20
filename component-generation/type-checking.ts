@@ -60,9 +60,10 @@ function getPropertiesFromComponentType(componentType: ts.Type, checker: ts.Type
 
     // ...and it should return an element.
     const returnType = componentFuncSignature.getReturnType();
-    if (checker.typeToString(returnType) !== 'Element') {
+    const returnTypeName = returnType.getSymbol().getName();
+    if (returnTypeName !== 'Element' && returnTypeName !== 'ReactElement') {
         // TODO(flo): Make this check more robust.
-        throw new Error('Component function should return a JSX.Element.')
+        throw new Error(`Component function should return an Element, found ${returnTypeName}.`)
     }
 
     // Getting the fully resolved type of the `props` parameter.
