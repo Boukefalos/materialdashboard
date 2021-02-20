@@ -1,6 +1,6 @@
 Package: materialdashboard
 Title: Dashboard with a material design
-Version: 0.0.1
+Version: 0.1.0
 Description: Dashboard with a material design
 Depends: R (>= 3.0.2)
 Imports: 
