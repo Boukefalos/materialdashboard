@@ -7,6 +7,16 @@
         "stringDefault": "''",
         "propType": "PropTypes.string",
         "forwardProperty": true
+    }, {
+        "name": "n_clicks",
+        "documentation": [],
+        "stringDefault": "0",
+        "propType": "PropTypes.number",
+        "forwardProperty": false
     }],
-    "events": {}
+    "events": {
+        "onClick": {
+            "incrementProperty": "n_clicks"
+        }
+    }
 }
