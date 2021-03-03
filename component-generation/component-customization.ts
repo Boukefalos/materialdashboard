@@ -220,6 +220,37 @@ function addBaseProperties(component: ComponentView, skippedProperties: SkippedP
 
         skippedProperties.splice(childrenPropertyIndex, 1);
     }
+
+    // This looks for skipped properties that accept an Element type. For those, the property is exposed as a string
+    // that should be the ID of the element that will be fetched in the DOM.
+    let propertyIndex = 0;
+    while (propertyIndex < skippedProperties.length) {
+        const currentSkippedProperty = skippedProperties[propertyIndex];
+        const types = currentSkippedProperty.typeAsString.split(' | ');
+        const propertyName = currentSkippedProperty.name;
+
+        if (types.indexOf('Element') < 0) {
+            propertyIndex++;
+            continue;
+        }
+
+        const successfullyAdded = tryAddProperty(component, {
+            name: propertyName,
+            documentation: currentSkippedProperty.documentation,
+            propType: 'PropTypes.string',
+            stringDefault: '',
+            forwardProperty: false,
+        }, false);
+
+        if (!successfullyAdded) {
+            propertyIndex++;
+            continue;
+        }
+
+        component.extraCode.push(`propsToForward.${propertyName} = document.getElementById(${propertyName});`);
+
+        skippedProperties.splice(propertyIndex, 1);
+    }
 }
 
 /**
