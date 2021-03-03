@@ -1,16 +1,16 @@
 {
-  "documentation": "",
-  "persistentProps": [],
-  "extraProperties": [{
+    "documentation": "",
+    "persistentProps": [],
+    "extraProperties": [{
         "name": "n_clicks",
         "documentation": [],
         "stringDefault": "0",
         "propType": "PropTypes.number",
         "forwardProperty": false
-  }],
-  "events": {
-    "onClick": {
-      "incrementProperty": "n_clicks"
+    }],
+    "events": {
+        "onClick": {
+            "incrementProperty": "n_clicks"
+        }
     }
-  }
 }
