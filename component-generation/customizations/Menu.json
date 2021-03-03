@@ -1,0 +1,16 @@
+{
+    "documentation": "",
+    "persistentProps": [],
+    "extraProperties": [{
+        "name": "n_closes",
+        "documentation": [],
+        "stringDefault": "0",
+        "propType": "PropTypes.number",
+        "forwardProperty": false
+    }],
+    "events": {
+        "onClose": {
+            "incrementProperty": "n_closes"
+        }
+    }
+}
