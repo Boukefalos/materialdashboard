@@ -96,8 +96,9 @@ function loadCustomization(componentName: string): ComponentCustomization | null
  * @param component The component to which the property should be added.
  * @param property The property to add.
  * @param throwIfExists Whether an error should be thrown if the property already exists.
+ * @returns `true` if the property was successfully added.
  */
-function tryAddProperty(component: ComponentView, property: ComponentViewProperty, throwIfExists: boolean) {
+function tryAddProperty(component: ComponentView, property: ComponentViewProperty, throwIfExists: boolean): boolean {
     if (component.properties.findIndex(p => p.name === property.name) >= 0) {
         if (throwIfExists) {
             throw new Error(`Property ${property.name} already exists.`);
@@ -105,11 +106,12 @@ function tryAddProperty(component: ComponentView, property: ComponentViewPropert
             // TODO(flo): Provide a "silent override" behavior in the future. This might be useful if we want to provide
             // access to component properties with types unsupported by Dash. We'll just replace the original property,
             // and provide some custom code for the conversion.
-            return;
+            return false;
         }
     }
 
     component.properties.push(property);
+    return true;
 }
 
 /**
