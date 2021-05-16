@@ -30,7 +30,7 @@ const {{name}} = (props) => {
         {{/events}}
     {{#hasChildren}}
     >
-        {children}
+        {{childrenCode}}
     </MUI{{name}}>;
     {{/hasChildren}}
     {{^hasChildren}}
