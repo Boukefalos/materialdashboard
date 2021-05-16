@@ -126,6 +126,7 @@ export function createView(componentDefinition: ComponentDefinition, checker: ts
         events: [],
         imports: [],
         extraCode: [],
+        childrenCode: '{children}',
     };
     customizeComponent(componentView, skippedProperties);
 

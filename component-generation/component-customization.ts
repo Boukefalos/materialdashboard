@@ -54,6 +54,10 @@ interface ComponentCustomization {
      * Additional code that should be added to the component function, before it returns the Material-UI component.
      */
     extraCode?: string[];
+    /**
+     * The code to insert to include children nodes in the component. Defaults to `{children}`.
+     */
+    childrenCode?: string;
 }
 
 /**
@@ -325,6 +329,10 @@ export function customizeComponent(component: ComponentView, skippedProperties: 
 
         if (customization.extraCode) {
             component.extraCode = customization.extraCode;
+        }
+
+        if (customization.childrenCode) {
+            component.childrenCode = customization.childrenCode;
         }
 
         if (customization.persistentProps.length > 0) {

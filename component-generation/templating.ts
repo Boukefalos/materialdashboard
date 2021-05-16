@@ -73,6 +73,10 @@ export interface ComponentView {
      * Additional code that should be added to the component function, before it returns the Material-UI component.
      */
     extraCode: string[];
+    /**
+     * The code to insert to include children nodes in the component. `{children}` in most cases.
+     */
+    childrenCode: string;
 }
 
 /**
