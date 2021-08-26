@@ -1,2 +1,2 @@
-dash[dev]==1.19.0
-pylint==2.6.0
+dash[dev]==1.21.0
+pylint==2.8.3
