@@ -10,36 +10,42 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Set up Node 14.17.0
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.17.0'
+
+      - name: Install npm
+        run: npm install -g npm@7.21.0
+
+      - name: Install Node dependencies
+        run: make node_modules
+
+      - name: Lint generation scripts
+        run: make lint
+
+      - name: Generate components
+        run: make src/lib
+
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
-      - name: Setup
-        run: |
-          npm install
-          python3 -m venv venv
-          . venv/bin/activate
-          python -m pip install --upgrade pip
-          pip install wheel==0.36.2
-          pip install -r requirements.txt
-      - name: Lint
-        run: npm run lint
-      - name: Generate components
-        run: npm run generate
-      - name: Build
-        run: |
-          . venv/bin/activate
-          npm run build
-          python setup.py sdist bdist_wheel
+          python-version: '3.8.11'
+
+      - name: Install Python dependencies
+        run: make venv
+
+      - name: Build Python package
+        run: make dist
+
       - name: Upload
         if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          . venv/bin/activate
-          pip install --upgrade twine
-          twine upload dist/*
+        run: make upload
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TWINE_API_TOKEN }}
