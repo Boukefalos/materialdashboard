@@ -1,0 +1,52 @@
+{
+    "documentation": "",
+    "persistentProps": [],
+    "extraProperties": [
+        {
+            "name": "columns",
+            "documentation": [
+                "The number of columns."
+            ],
+            "stringDefault": "",
+            "propType": "PropTypes.number",
+            "forwardProperty": true
+        },
+        {
+            "name": "columnSpacing",
+            "documentation": [
+                "Defines the horizontal space between the type `item` components.\nIt overrides the value of the `spacing` prop."
+            ],
+            "stringDefault": "",
+            "propType": "PropTypes.number",
+            "forwardProperty": true
+        },
+        {
+            "name": "rowSpacing",
+            "documentation": [
+                "Defines the vertical space between the type `item` components.\nIt overrides the value of the `spacing` prop."
+            ],
+            "stringDefault": "",
+            "propType": "PropTypes.number",
+            "forwardProperty": true
+        },
+        {
+            "name": "spacing",
+            "documentation": [
+                "Defines the space between the type `item` components.\nIt can only be used on a type `container` component."
+            ],
+            "stringDefault": "",
+            "propType": "PropTypes.number",
+            "forwardProperty": true
+        },
+        {
+            "name": "direction",
+            "documentation": [
+                "Defines the `flex-direction` style property.\nIt is applied for all screen sizes."
+            ],
+            "stringDefault": "",
+            "propType": "PropTypes.oneOf([\"row\", \"row-reverse\", \"column\", \"column-reverse\"])",
+            "forwardProperty": true
+        }
+    ],
+    "events": {}
+}

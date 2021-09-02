@@ -1,0 +1,25 @@
+{
+    "documentation": "",
+    "persistentProps": [],
+    "extraProperties": [
+        {
+            "name": "spacing",
+            "documentation": [
+                "Defines the space between immediate children."
+            ],
+            "stringDefault": "",
+            "propType": "PropTypes.number",
+            "forwardProperty": true
+        },
+        {
+            "name": "direction",
+            "documentation": [
+                "Defines the `flex-direction` style property.\nIt is applied for all screen sizes."
+            ],
+            "stringDefault": "",
+            "propType": "PropTypes.oneOf([\"row\", \"row-reverse\", \"column\", \"column-reverse\"])",
+            "forwardProperty": true
+        }
+    ],
+    "events": {}
+}
