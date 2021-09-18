@@ -1,8 +1,8 @@
 import * as ts from 'typescript';
-import { customizeComponent, SkippedProperty } from './component-customization';
+import {customizeComponent, SkippedProperty} from './component-customization';
 
-import { ComponentView, ComponentViewProperty } from './templating';
-import { ComponentDefinition, ComponentProperty } from './type-checking';
+import {ComponentView, ComponentViewProperty} from './templating';
+import {ComponentDefinition, ComponentProperty} from './type-checking';
 
 /**
  * Creates a string representing the `PropType` from the given TypeScript type.
@@ -13,14 +13,22 @@ import { ComponentDefinition, ComponentProperty } from './type-checking';
  *     recursively, but we don't want to allow more than one recursion).
  * @returns The `PropType` for this property.
  */
-function createPropType(sourceType: ts.Type, checker: ts.TypeChecker, allowComplexTypes = true): string {
+function createPropType(
+    sourceType: ts.Type,
+    checker: ts.TypeChecker,
+    allowComplexTypes = true
+): string {
     function fail() {
-        throw new Error(`Failed to find propType for ${checker.typeToString(sourceType)}.`);
+        throw new Error(
+            `Failed to find propType for ${checker.typeToString(sourceType)}.`
+        );
     }
 
-    if ((ts.TypeFlags.Boolean & sourceType.flags) === ts.TypeFlags.Boolean
+    if (
+        (ts.TypeFlags.Boolean & sourceType.flags) === ts.TypeFlags.Boolean ||
         // It might happen that a boolean property might be declared as only a 'false' or 'true' literal.
-        || checker.typeToString(sourceType) === 'false') {
+        checker.typeToString(sourceType) === 'false'
+    ) {
         return 'PropTypes.bool';
     }
 
@@ -49,11 +57,17 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker, allowCompl
 
         // If at least one of the types is not a literal, we'll need to recursively determine the types that are
         // allowed. If all types are literal, we can simply list the values and be done with it.
-        if (unionType.types.findIndex(t => (ts.TypeFlags.Literal & t.flags) === 0) >= 0) {
-            const types = unionType.types.map(t => createPropType(t, checker, false));
-            return `PropTypes.oneOfType([${types.join(', ')}])`
+        if (
+            unionType.types.findIndex(
+                (t) => (ts.TypeFlags.Literal & t.flags) === 0
+            ) >= 0
+        ) {
+            const types = unionType.types.map((t) =>
+                createPropType(t, checker, false)
+            );
+            return `PropTypes.oneOfType([${types.join(', ')}])`;
         } else {
-            const values = unionType.types.map(t => checker.typeToString(t));
+            const values = unionType.types.map((t) => checker.typeToString(t));
             return `PropTypes.oneOf([${values.join(', ')}])`;
         }
     }
@@ -69,42 +83,56 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker, allowCompl
  * @param checker The type checker to use.
  * @returns The property "views".
  */
-function convertComponentPropertiesToView(properties: ComponentProperty[],
-                                          checker: ts.TypeChecker): { viewProperties: ComponentViewProperty[],
-                                                                      skippedProperties: SkippedProperty[] } {
+function convertComponentPropertiesToView(
+    properties: ComponentProperty[],
+    checker: ts.TypeChecker
+): {
+    viewProperties: ComponentViewProperty[];
+    skippedProperties: SkippedProperty[];
+} {
     const skippedProperties: SkippedProperty[] = [];
 
-    const viewProperties: ComponentViewProperty[] = properties.flatMap(property => {
-        const typeAsString = checker.typeToString(property.type);
+    const viewProperties: ComponentViewProperty[] = properties.flatMap(
+        (property) => {
+            const typeAsString = checker.typeToString(property.type);
 
-        try {
-            if (['component', 'innerRef'].includes(property.name) || property.name.startsWith('aria-')) {
-                throw new Error(`Skipping property ${property.name}.`);
+            try {
+                if (
+                    ['component', 'innerRef'].includes(property.name) ||
+                    property.name.startsWith('aria-')
+                ) {
+                    throw new Error(`Skipping property ${property.name}.`);
+                }
+
+                let propType: string;
+                // TODO(flo): Move inside `createPropType`.
+                if (
+                    typeAsString === 'ReactNode' &&
+                    property.name !== 'children'
+                ) {
+                    // Dash only supports the `children` property to pass child nodes. However other `ReactNode` properties
+                    // might still be worth exposing as `any` such that we can still pass a string to them for example.
+                    console.warn(
+                        `Defining node property ${property.name} as any instead of ReactNode.`
+                    );
+                    propType = 'PropTypes.any';
+                } else {
+                    propType = createPropType(property.type, checker);
+                }
+
+                return {...property, propType, forwardProperty: true};
+            } catch (e) {
+                skippedProperties.push({
+                    ...property,
+                    typeAsString,
+                });
             }
 
-            let propType: string;
-            // TODO(flo): Move inside `createPropType`.
-            if ((typeAsString === 'ReactNode') && (property.name !== 'children')) {
-                // Dash only supports the `children` property to pass child nodes. However other `ReactNode` properties
-                // might still be worth exposing as `any` such that we can still pass a string to them for example.
-                console.warn(`Defining node property ${property.name} as any instead of ReactNode.`);
-                propType = 'PropTypes.any';
-            } else {
-                propType = createPropType(property.type, checker);
-            }
-
-            return { ...property, propType, forwardProperty: true };
-        } catch (e) {
-            skippedProperties.push({
-                ...property,
-                typeAsString
-            });
+            return [];
         }
+    );
 
-        return [];
-    });
-
-    return { viewProperties, skippedProperties };
+    return {viewProperties, skippedProperties};
 }
 
 /**
@@ -114,11 +142,15 @@ function convertComponentPropertiesToView(properties: ComponentProperty[],
  * @param checker The type checker to use.
  * @returns The component view.
  */
-export function createView(componentDefinition: ComponentDefinition, checker: ts.TypeChecker): ComponentView {
-    const {
-        viewProperties,
-        skippedProperties,
-    } = convertComponentPropertiesToView(componentDefinition.properties, checker);
+export function createView(
+    componentDefinition: ComponentDefinition,
+    checker: ts.TypeChecker
+): ComponentView {
+    const {viewProperties, skippedProperties} =
+        convertComponentPropertiesToView(
+            componentDefinition.properties,
+            checker
+        );
 
     const componentView: ComponentView = {
         name: componentDefinition.name,
@@ -131,8 +163,12 @@ export function createView(componentDefinition: ComponentDefinition, checker: ts
     customizeComponent(componentView, skippedProperties);
 
     if (skippedProperties.length > 0) {
-        const skippedPropertiesNames = skippedProperties.map(p => p.name).join(', ');
-        console.warn(`Skipped properties for component ${componentView.name}: ${skippedPropertiesNames}`);
+        const skippedPropertiesNames = skippedProperties
+            .map((p) => p.name)
+            .join(', ');
+        console.warn(
+            `Skipped properties for component ${componentView.name}: ${skippedPropertiesNames}`
+        );
     }
     return componentView;
 }

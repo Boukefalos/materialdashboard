@@ -7,12 +7,16 @@
     "extraCode": [
         "propsToForward.theme = createMuiTheme(theme);"
     ],
-    "extraProperties": [{
-        "name": "theme",
-        "documentation": ["The theme that will be applied to all children of this component."],
-        "stringDefault": "",
-        "propType": "PropTypes.object",
-        "forwardProperty": false
-    }],
+    "extraProperties": [
+        {
+            "name": "theme",
+            "documentation": [
+                "The theme that will be applied to all children of this component."
+            ],
+            "stringDefault": "",
+            "propType": "PropTypes.object",
+            "forwardProperty": false
+        }
+    ],
     "events": {}
 }

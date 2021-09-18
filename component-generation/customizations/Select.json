@@ -1,22 +1,31 @@
 {
     "documentation": "",
-    "persistentProps": ["value"],
+    "persistentProps": [
+        "value"
+    ],
     "imports": [
         "import { MenuItem as MUIMenuItem } from '@material-ui/core';"
     ],
-    "extraProperties": [{
-        "name": "value",
-        "documentation": ["The selected value, amongst the child menu items."],
-        "stringDefault": "''",
-        "propType": "PropTypes.string",
-        "forwardProperty": true
-    }, {
-        "name": "options",
-        "documentation": ["The list of options, where each element is a dictionary with 'value' and 'text' properties."],
-        "stringDefault": "[]",
-        "propType": "PropTypes.arrayOf(PropTypes.object)",
-        "forwardProperty": false
-    }],
+    "extraProperties": [
+        {
+            "name": "value",
+            "documentation": [
+                "The selected value, amongst the child menu items."
+            ],
+            "stringDefault": "''",
+            "propType": "PropTypes.string",
+            "forwardProperty": true
+        },
+        {
+            "name": "options",
+            "documentation": [
+                "The list of options, where each element is a dictionary with 'value' and 'text' properties."
+            ],
+            "stringDefault": "[]",
+            "propType": "PropTypes.arrayOf(PropTypes.object)",
+            "forwardProperty": false
+        }
+    ],
     "childrenCode": "{options.map((o) => (<MUIMenuItem value={o.value}>{o.text}</MUIMenuItem>))}",
     "events": {
         "onChange": {

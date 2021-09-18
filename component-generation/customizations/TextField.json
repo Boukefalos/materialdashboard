@@ -1,6 +1,8 @@
 {
     "documentation": "",
-    "persistentProps": ["value"],
+    "persistentProps": [
+        "value"
+    ],
     "extraProperties": [],
     "events": {
         "onChange": {

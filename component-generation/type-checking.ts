@@ -43,9 +43,12 @@ export interface ComponentDefinition {
  * @param checker The type checker to use.
  * @returns The list of properties for the component.
  */
-function getPropertiesFromComponentType(componentType: ts.Type, checker: ts.TypeChecker): ComponentProperty[] {
+function getPropertiesFromComponentType(
+    componentType: ts.Type,
+    checker: ts.TypeChecker
+): ComponentProperty[] {
     // The component is a callable...
-    const callSignatures = componentType.getCallSignatures()
+    const callSignatures = componentType.getCallSignatures();
     if (callSignatures.length === 0) {
         throw new Error('Expected to find a call signature for component.');
     }
@@ -54,7 +57,9 @@ function getPropertiesFromComponentType(componentType: ts.Type, checker: ts.Type
     const componentFuncSignature = callSignatures[0];
     const callParameters = componentFuncSignature.getParameters();
     if (callParameters.length !== 1) {
-        throw new Error('Expected to find a call signature with a single props parameter for component.');
+        throw new Error(
+            'Expected to find a call signature with a single props parameter for component.'
+        );
     }
     const propsParameter = callParameters[0];
 
@@ -63,25 +68,35 @@ function getPropertiesFromComponentType(componentType: ts.Type, checker: ts.Type
     const returnTypeName = returnType.getSymbol().getName();
     if (returnTypeName !== 'Element' && returnTypeName !== 'ReactElement') {
         // TODO(flo): Make this check more robust.
-        throw new Error(`Component function should return an Element, found ${returnTypeName}.`)
+        throw new Error(
+            `Component function should return an Element, found ${returnTypeName}.`
+        );
     }
 
     // Getting the fully resolved type of the `props` parameter.
-    const propsType = checker.getTypeOfSymbolAtLocation(propsParameter, propsParameter.valueDeclaration);
+    const propsType = checker.getTypeOfSymbolAtLocation(
+        propsParameter,
+        propsParameter.valueDeclaration
+    );
 
     // Listing available properties for the component.
     const props = propsType.getProperties();
 
-    return props.map(p => {
+    return props.map((p) => {
         return {
             name: p.name,
-            documentation: p.getDocumentationComment(checker).flatMap(c => c.text.split('\n')),
+            documentation: p
+                .getDocumentationComment(checker)
+                .flatMap((c) => c.text.split('\n')),
             // TODO(flo): This needs more work as the defaults might be values other than literals, which will fail to
             // resolve once inserted in the generated component.
             // stringDefault: p.getJsDocTags().find(t => t.name === 'default')?.text,
             stringDefault: '',
-            type: checker.getTypeOfSymbolAtLocation(p, propsParameter.valueDeclaration)
-        }
+            type: checker.getTypeOfSymbolAtLocation(
+                p,
+                propsParameter.valueDeclaration
+            ),
+        };
     });
 }
 
@@ -93,8 +108,12 @@ function getPropertiesFromComponentType(componentType: ts.Type, checker: ts.Type
  * @param checker The type checker to use.
  * @returns The component definition.
  */
-export function createComponentFromNode(name: string, node: ts.Node, checker: ts.TypeChecker): ComponentDefinition {
+export function createComponentFromNode(
+    name: string,
+    node: ts.Node,
+    checker: ts.TypeChecker
+): ComponentDefinition {
     const declarationType = checker.getTypeAtLocation(node);
     const properties = getPropertiesFromComponentType(declarationType, checker);
-    return { name, properties };
+    return {name, properties};
 }

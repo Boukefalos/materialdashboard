@@ -21,6 +21,8 @@ VENV_DIR=venv
 
 ACTIVATE_FILE=$(VENV_DIR)/bin/activate
 
+.DEFAULT_GOAL := $(DIST_DIR)
+
 $(NODE_MODULES_DIR): $(PACKAGE_FILE) $(PACKAGE_LOCK_FILE)
 	npm install
 	touch $(NODE_MODULES_DIR)
@@ -35,6 +37,9 @@ $(VENV_DIR): $(REQUIREMENTS_FILE)
 .PHONY: lint
 lint: $(NODE_MODULES_DIR)
 	npm run lint
+
+.PHONY: generate
+generate: $(SRC_LIB_DIR)
 
 $(SRC_LIB_DIR): $(NODE_MODULES_DIR) $(COMPONENT_GENERATION_FILES)
 	rm -rf $(SRC_DIR)

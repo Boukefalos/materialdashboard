@@ -3,11 +3,17 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const TEMPLATES_DIR = path.join(__dirname, 'templates');
-const COMPONENT_TEMPLATE_FILE = path.join(TEMPLATES_DIR, 'template-component.js');
+const COMPONENT_TEMPLATE_FILE = path.join(
+    TEMPLATES_DIR,
+    'template-component.js'
+);
 const INDEX_TEMPLATE_FILE = path.join(TEMPLATES_DIR, 'template-index.js');
 const COMPONENT_TEMPLATE = fs.readFileSync(COMPONENT_TEMPLATE_FILE).toString();
 const INDEX_TEMPLATE = fs.readFileSync(INDEX_TEMPLATE_FILE).toString();
-const MUSTACHE_OPTIONS = { escape: t => t, tags: ['{{', '}}'] as [string, string] };
+const MUSTACHE_OPTIONS = {
+    escape: (t) => t,
+    tags: ['{{', '}}'] as [string, string],
+};
 
 /**
  * A component property that can be used by the template system.
@@ -86,33 +92,59 @@ export interface ComponentView {
  * @param destinationPath The path where the index file will be created.
  * @param componentDirectory The name of the sub directory in which components will be placed.
  */
-export function writeComponents(componentViews: ComponentView[], destinationPath: string,
-                                componentDirectory: string): void {
-    const componentDirectoryPath = path.join(destinationPath, componentDirectory);
+export function writeComponents(
+    componentViews: ComponentView[],
+    destinationPath: string,
+    componentDirectory: string
+): void {
+    const componentDirectoryPath = path.join(
+        destinationPath,
+        componentDirectory
+    );
 
     if (!fs.existsSync(componentDirectoryPath)) {
-        fs.mkdirSync(componentDirectoryPath, { recursive: true });
+        fs.mkdirSync(componentDirectoryPath, {recursive: true});
     }
 
-    componentViews.forEach(component => {
+    componentViews.forEach((component) => {
         // Mustache is a simple template system, and any "advanced" filtering needs to happen outside of the template.
-        const renderedComponent = Mustache.render(COMPONENT_TEMPLATE, {
-            ...component,
-            propertiesWithDefault: component.properties.filter(p => p.stringDefault),
-            privateProperties: component.properties.filter(p => !p.forwardProperty),
-            hasChildren: component.properties.findIndex(p => p.name === 'children') >= 0,
-        }, undefined, MUSTACHE_OPTIONS);
-        const destinationPath = path.join(componentDirectoryPath, `${component.name}.react.js`);
+        const renderedComponent = Mustache.render(
+            COMPONENT_TEMPLATE,
+            {
+                ...component,
+                propertiesWithDefault: component.properties.filter(
+                    (p) => p.stringDefault
+                ),
+                privateProperties: component.properties.filter(
+                    (p) => !p.forwardProperty
+                ),
+                hasChildren:
+                    component.properties.findIndex(
+                        (p) => p.name === 'children'
+                    ) >= 0,
+            },
+            undefined,
+            MUSTACHE_OPTIONS
+        );
+        const destinationPath = path.join(
+            componentDirectoryPath,
+            `${component.name}.react.js`
+        );
         fs.writeFileSync(destinationPath, renderedComponent);
     });
 
     const indexView = {
-        components: componentViews.map(component => ({
+        components: componentViews.map((component) => ({
             name: component.name,
-            path: `./${componentDirectory}/${component.name}.react`
-        }))
+            path: `./${componentDirectory}/${component.name}.react`,
+        })),
     };
-    const renderedIndex = Mustache.render(INDEX_TEMPLATE, indexView, undefined, MUSTACHE_OPTIONS);
+    const renderedIndex = Mustache.render(
+        INDEX_TEMPLATE,
+        indexView,
+        undefined,
+        MUSTACHE_OPTIONS
+    );
 
     const indexPath = path.join(destinationPath, 'index.js');
     fs.writeFileSync(indexPath, renderedIndex);
