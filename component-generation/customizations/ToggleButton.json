@@ -1,0 +1,12 @@
+{
+    "documentation": "",
+    "persistentProps": [
+        "selected"
+    ],
+    "extraProperties": [],
+    "events": {
+        "onChange": {
+            "code": "() => setProps({ selected: !props.selected })"
+        }
+    }
+}

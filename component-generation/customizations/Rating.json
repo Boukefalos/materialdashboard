@@ -1,0 +1,12 @@
+{
+    "documentation": "",
+    "persistentProps": [
+        "value"
+    ],
+    "extraProperties": [],
+    "events": {
+        "onChange": {
+            "code": "(e, value) => setProps({ value })"
+        }
+    }
+}

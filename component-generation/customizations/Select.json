@@ -10,7 +10,7 @@
         {
             "name": "value",
             "documentation": [
-                "The selected value, amongst the child menu items."
+                "The `input` value. Providing an empty string will select no options.\nSet to an empty string `''` if you don't want any of the available options to be selected."
             ],
             "stringDefault": "''",
             "propType": "PropTypes.string",
@@ -19,17 +19,13 @@
         {
             "name": "options",
             "documentation": [
-                "The list of options, where each element is a dictionary with 'value' and 'text' properties."
+                "The options to present, where keys are the 'value' and the values will be displayed as menu items."
             ],
             "stringDefault": "[]",
-            "propType": "PropTypes.arrayOf(PropTypes.object)",
+            "propType": "PropTypes.object",
             "forwardProperty": false
         }
     ],
-    "childrenCode": "{options.map((o) => (<MUIMenuItem value={o.value}>{o.text}</MUIMenuItem>))}",
-    "events": {
-        "onChange": {
-            "setProperty": "value"
-        }
-    }
+    "childrenCode": "{Object.keys(options).map((o) => (<MUIMenuItem value={o}>{options[o]}</MUIMenuItem>))}",
+    "events": {}
 }
