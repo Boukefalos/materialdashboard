@@ -1,0 +1,27 @@
+{
+    "documentation": "",
+    "persistentProps": [
+        "value"
+    ],
+    "imports": [
+        "import { Icon } from '@material-ui/core';",
+        "import { ToggleButton as MUIToggleButton } from '@material-ui/core';"
+    ],
+    "extraProperties": [
+        {
+            "name": "buttons",
+            "documentation": [
+                "A collection of buttons, where keys are the 'values' and values are icon names."
+            ],
+            "stringDefault": "{}",
+            "propType": "PropTypes.object",
+            "forwardProperty": false
+        }
+    ],
+    "childrenCode": "{Object.keys(buttons).map((b) => (<MUIToggleButton value={b}><Icon>{buttons[b]}</Icon></MUIToggleButton>))}",
+    "events": {
+        "onChange": {
+            "code": "(e, value) => setProps({ value })"
+        }
+    }
+}
