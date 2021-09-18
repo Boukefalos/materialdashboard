@@ -1,6 +1,8 @@
 {
     "documentation": "",
-    "persistentProps": ["checked"],
+    "persistentProps": [
+        "checked"
+    ],
     "extraProperties": [],
     "events": {
         "onChange": {
