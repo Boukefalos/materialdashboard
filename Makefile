@@ -21,6 +21,8 @@ VENV_DIR=venv
 
 ACTIVATE_FILE=$(VENV_DIR)/bin/activate
 
+.DEFAULT_GOAL := $(DIST_DIR)
+
 $(NODE_MODULES_DIR): $(PACKAGE_FILE) $(PACKAGE_LOCK_FILE)
 	npm install
 	touch $(NODE_MODULES_DIR)
