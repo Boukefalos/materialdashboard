@@ -1,10 +1,10 @@
 import * as path from 'path';
 import * as ts from 'typescript';
-import { Project, SourceFile } from 'ts-morph';
+import {Project, SourceFile} from 'ts-morph';
 
-import { createView } from './component-conversion';
-import { ComponentView, writeComponents } from './templating';
-import { createComponentFromNode } from './type-checking';
+import {createView} from './component-conversion';
+import {ComponentView, writeComponents} from './templating';
+import {createComponentFromNode} from './type-checking';
 
 // TypeScript definitions for Material-UI, including all available components.
 const INDEX_FILE = require.resolve('@material-ui/core/index.d.ts');
@@ -18,7 +18,10 @@ const COMPONENTS_DIRECTORY = 'components';
  * @param checker The TypeScript type checker to use to analyse the source file.
  * @returns A list of component views.
  */
-function getViewsForExportedComponentsInSourceFile(sourceFile: SourceFile, checker: ts.TypeChecker): ComponentView[] {
+function getViewsForExportedComponentsInSourceFile(
+    sourceFile: SourceFile,
+    checker: ts.TypeChecker
+): ComponentView[] {
     const declarations = sourceFile.getExportedDeclarations();
 
     const componentViews: ComponentView[] = [];
@@ -26,13 +29,21 @@ function getViewsForExportedComponentsInSourceFile(sourceFile: SourceFile, check
         const declaration = keyDeclarations[0];
 
         try {
-            console.log(`Trying to extract component from declaration ${key}...`);
+            console.log(
+                `Trying to extract component from declaration ${key}...`
+            );
 
-            const component = createComponentFromNode(key, declaration.compilerNode, checker);
+            const component = createComponentFromNode(
+                key,
+                declaration.compilerNode,
+                checker
+            );
             const componentView = createView(component, checker);
             componentViews.push(componentView);
         } catch (e) {
-            console.warn(`Error while extracting component from declaration ${key}: ${e}`);
+            console.warn(
+                `Error while extracting component from declaration ${key}: ${e}`
+            );
         }
     });
 
@@ -44,7 +55,10 @@ function main() {
     const sourceFile = project.addSourceFileAtPath(INDEX_FILE);
     const checker = project.getTypeChecker().compilerObject;
 
-    const componentViews = getViewsForExportedComponentsInSourceFile(sourceFile, checker);
+    const componentViews = getViewsForExportedComponentsInSourceFile(
+        sourceFile,
+        checker
+    );
     writeComponents(componentViews, DESTINATION_PATH, COMPONENTS_DIRECTORY);
 }
 
