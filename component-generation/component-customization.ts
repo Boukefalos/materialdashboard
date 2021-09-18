@@ -413,6 +413,20 @@ function addBaseEvents(
 
         skippedProperties.splice(onClickPropertyIndex, 1);
     }
+
+    const valuePropertyIndex = component.properties.findIndex(
+        (p) => p.name === 'value'
+    );
+    if (valuePropertyIndex >= 0) {
+        tryAddEvent(
+            component,
+            {
+                name: 'onChange',
+                code: '(e) => setProps({ value: e.target.value })',
+            },
+            false
+        );
+    }
 }
 
 /**
