@@ -38,6 +38,9 @@ $(VENV_DIR): $(REQUIREMENTS_FILE)
 lint: $(NODE_MODULES_DIR)
 	npm run lint
 
+.PHONY: generate
+generate: $(SRC_LIB_DIR)
+
 $(SRC_LIB_DIR): $(NODE_MODULES_DIR) $(COMPONENT_GENERATION_FILES)
 	rm -rf $(SRC_DIR)
 	npm run generate
