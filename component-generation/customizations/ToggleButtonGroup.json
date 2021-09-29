@@ -4,8 +4,8 @@
         "value"
     ],
     "imports": [
-        "import { Icon } from '@material-ui/core';",
-        "import { ToggleButton as MUIToggleButton } from '@material-ui/core';"
+        "import { Icon } from '@mui/material';",
+        "import { ToggleButton as MUIToggleButton } from '@mui/material';"
     ],
     "extraProperties": [
         {

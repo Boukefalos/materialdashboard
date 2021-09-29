@@ -1,13 +1,12 @@
 import * as path from 'path';
-import * as ts from 'typescript';
 import {Project, SourceFile} from 'ts-morph';
-
+import * as ts from 'typescript';
 import {createView} from './component-conversion';
 import {ComponentView, writeComponents} from './templating';
 import {createComponentFromNode} from './type-checking';
 
 // TypeScript definitions for Material-UI, including all available components.
-const INDEX_FILE = require.resolve('@material-ui/core/index.d.ts');
+const INDEX_FILE = require.resolve('@mui/material/index.d.ts');
 const DESTINATION_PATH = path.join(__dirname, '..', 'src', 'lib');
 const COMPONENTS_DIRECTORY = 'components';
 
