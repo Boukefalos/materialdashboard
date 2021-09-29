@@ -1,4 +1,4 @@
-import { {{name}} as MUI{{name}} } from '@material-ui/core';
+import { {{name}} as MUI{{name}} } from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
 {{#imports}}

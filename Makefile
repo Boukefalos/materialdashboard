@@ -1,3 +1,4 @@
+BUILD_DIR=build
 COMPONENT_GENERATION_DIR=component-generation
 COMPONENT_GENERATION_FILES=$(shell find $(COMPONENT_GENERATION_DIR)/ -name '*.json' -o -name '*.ts' -o -name '*.js')
 DEPS_DIR=deps
@@ -51,7 +52,7 @@ $(DEPS_DIR) $(INST_DIR) $(MAN_DIR) $(R_DIR) $(SRC_JL_DIR) $(SRC_JL_MODULE_FILE) 
 		npm run build
 	touch $(PY_SRC_DIR)
 
-$(DIST_DIR) $(EGG_DIR): $(PY_SRC_DIR) $(PY_MODULE_FILE)
+$(DIST_DIR) $(EGG_DIR) $(BUILD_DIR): $(PY_SRC_DIR) $(PY_MODULE_FILE)
 	. $(ACTIVATE_FILE) &&\
 		python setup.py sdist bdist_wheel
 	touch $(DIST_DIR)
@@ -81,7 +82,7 @@ clean_build:
 
 .PHONY: clean_dist
 clean_dist:
-	rm -rf $(DIST_DIR) $(EGG_DIR)
+	rm -rf $(DIST_DIR) $(EGG_DIR) $(BUILD_DIR)
 
 .PHONY: clean
 clean: clean_node clean_venv clean_src clean_build clean_dist

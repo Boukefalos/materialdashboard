@@ -2,10 +2,10 @@
     "documentation": "",
     "persistentProps": [],
     "imports": [
-        "import { createMuiTheme } from '@material-ui/core/styles';"
+        "import { createTheme } from '@mui/material/styles';"
     ],
     "extraCode": [
-        "propsToForward.theme = createMuiTheme(theme);"
+        "propsToForward.theme = createTheme(theme);"
     ],
     "extraProperties": [
         {
