@@ -40,6 +40,7 @@ class InputsExamplePage(ExamplePage):
 
     def make_layout(self) -> Component:
         return md.Container(
+            style={"padding": "20px"},
             children=[
                 md.Grid(
                     container=True,
@@ -50,7 +51,7 @@ class InputsExamplePage(ExamplePage):
                         for item in self._make_grid_item(example)
                     ],
                 )
-            ]
+            ],
         )
 
     def _make_grid_item(
