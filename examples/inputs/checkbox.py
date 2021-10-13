@@ -4,10 +4,10 @@ from dash.development.base_component import Component
 import materialdashboard as md
 from typing import List, Union
 
-from .base import BaseInputExample
+from utils import BaseExampleItem
 
 
-class CheckboxInputExample(BaseInputExample):
+class CheckboxInputExample(BaseExampleItem):
     """Showcases how to use checkboxes."""
 
     def __init__(self):
