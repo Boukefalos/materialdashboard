@@ -1,6 +1,5 @@
 import * as ts from 'typescript';
 import {customizeComponent, SkippedProperty} from './component-customization';
-
 import {ComponentView, ComponentViewProperty} from './templating';
 import {ComponentDefinition, ComponentProperty} from './type-checking';
 
@@ -18,16 +17,16 @@ function createPropType(
     checker: ts.TypeChecker,
     allowComplexTypes = true
 ): string {
+    const typeAsString = checker.typeToString(sourceType);
+
     function fail() {
-        throw new Error(
-            `Failed to find propType for ${checker.typeToString(sourceType)}.`
-        );
+        throw new Error(`Failed to find propType for ${typeAsString}.`);
     }
 
     if (
         (ts.TypeFlags.Boolean & sourceType.flags) === ts.TypeFlags.Boolean ||
         // It might happen that a boolean property might be declared as only a 'false' or 'true' literal.
-        checker.typeToString(sourceType) === 'false'
+        typeAsString === 'false'
     ) {
         return 'PropTypes.bool';
     }
@@ -48,8 +47,14 @@ function createPropType(
         fail();
     }
 
-    if (checker.typeToString(sourceType) === 'ReactNode') {
+    if (typeAsString === 'ReactNode') {
         return 'PropTypes.node';
+    }
+
+    // The `sx` property is always typed as a generic `SxProps<T>`, and in Python can't do better than converting those
+    // to objects.
+    if (/SxProps<.*>/.test(typeAsString)) {
+        return 'PropTypes.object';
     }
 
     if (sourceType.isUnion()) {
