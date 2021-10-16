@@ -1,0 +1,67 @@
+{
+    "documentation": "",
+    "imports": [
+        "import { Icon } from '@mui/material';",
+        "import { Avatar } from '@mui/material';"
+    ],
+    "persistentProps": [],
+    "extraProperties": [
+        {
+            "name": "n_clicks",
+            "documentation": [
+                "An integer that represents the number of times that this element has been clicked on."
+            ],
+            "propType": "PropTypes.number",
+            "stringDefault": "0",
+            "forwardProperty": false
+        },
+        {
+            "name": "n_deletes",
+            "documentation": [
+                "An integer that represents the number of times that the delete icon has been clicked on."
+            ],
+            "propType": "PropTypes.number",
+            "stringDefault": "0",
+            "forwardProperty": false
+        },
+        {
+            "name": "icon",
+            "documentation": [
+                "The name of the icon to show."
+            ],
+            "propType": "PropTypes.string",
+            "stringDefault": "",
+            "forwardProperty": false,
+            "overwrite": true
+        },
+        {
+            "name": "deleteIcon",
+            "documentation": [
+                "If `False`, does not show the delete icon. If `True`, shows the default delete icon. If a string is passed, it is used as the name of the icon to show."
+            ],
+            "propType": "PropTypes.oneOfType([PropTypes.bool, PropTypes.string])",
+            "stringDefault": "false",
+            "forwardProperty": false,
+            "overwrite": true
+        },
+        {
+            "name": "avatar",
+            "documentation": [
+                "The Avatar element to display."
+            ],
+            "propType": "PropTypes.exact({ src: PropTypes.string, children: PropTypes.string })",
+            "stringDefault": "",
+            "forwardProperty": false,
+            "overwrite": true
+        }
+    ],
+    "extraCode": [
+        "if (icon) { propsToForward.icon = <Icon>{icon}</Icon>; }",
+        "if (typeof deleteIcon === 'string') { propsToForward.deleteIcon = <Icon>{deleteIcon}</Icon>; }",
+        "if (avatar) { propsToForward.avatar = <Avatar {...avatar} />; }",
+        "if (propsToForward.clickable) { propsToForward.onClick = () => setProps({ n_clicks: n_clicks + 1 }); }",
+        "if (deleteIcon) { propsToForward.onDelete = () => setProps({ n_deletes: n_deletes + 1 }); }"
+    ],
+    "childrenCode": [],
+    "events": {}
+}
