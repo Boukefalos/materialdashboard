@@ -9,20 +9,10 @@ import {ComponentDefinition, ComponentProperty} from './type-checking';
  *
  * @param sourceType The type of the property for which the `PropType` must be created.
  * @param checker The type checker to use.
- * @param allowComplexTypes Whether complex types, like React nodes or union are allowed (useful when this is called
- *     recursively, but we don't want to allow more than one recursion).
  * @returns The `PropType` for this property.
  */
-function createPropType(
-    sourceType: ts.Type,
-    checker: ts.TypeChecker,
-    allowComplexTypes = true
-): string {
+function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
     const typeAsString = checker.typeToString(sourceType);
-
-    function fail() {
-        throw new Error(`Failed to find propType for ${typeAsString}.`);
-    }
 
     if (
         (ts.TypeFlags.Boolean & sourceType.flags) === ts.TypeFlags.Boolean ||
@@ -54,20 +44,16 @@ function createPropType(
         const elementType = checker.getTypeArguments(
             sourceType as TypeReference
         )[0];
-        const elementPropType = createPropType(elementType, checker, true);
+        const elementPropType = createPropType(elementType, checker);
         return `PropTypes.arrayOf(${elementPropType})`;
-    }
-
-    if (!allowComplexTypes) {
-        fail();
     }
 
     if (typeAsString === 'ReactNode') {
         return 'PropTypes.node';
     }
 
-    // The `sx` property is always typed as a generic `SxProps<T>`, and in Python can't do better than converting those
-    // to objects.
+    // The `sx` property is always typed as a generic `SxProps<T>`, and Python can't do better than converting those to
+    // objects.
     if (/SxProps<.*>/.test(typeAsString)) {
         return 'PropTypes.object';
     }
@@ -75,24 +61,45 @@ function createPropType(
     if (sourceType.isUnion()) {
         const unionType = sourceType as ts.UnionType;
 
-        // If at least one of the types is not a literal, we'll need to recursively determine the types that are
-        // allowed. If all types are literal, we can simply list the values and be done with it.
-        if (
-            unionType.types.findIndex(
-                (t) => (ts.TypeFlags.Literal & t.flags) === 0
-            ) >= 0
-        ) {
-            const types = unionType.types.map((t) =>
-                createPropType(t, checker, false)
-            );
-            return `PropTypes.oneOfType([${types.join(', ')}])`;
-        } else {
-            const values = unionType.types.map((t) => checker.typeToString(t));
-            return `PropTypes.oneOf([${values.join(', ')}])`;
+        const typesSet = new Set<string>();
+        const valuesSet = new Set<string>();
+
+        unionType.types.forEach((type) => {
+            if (ts.TypeFlags.Literal & type.flags) {
+                valuesSet.add(checker.typeToString(type));
+            } else {
+                try {
+                    typesSet.add(createPropType(type, checker));
+                } catch (e) {
+                    console.warn(
+                        `Failed to create property type for subtype in union: ${e}`
+                    );
+                }
+            }
+        });
+
+        if (valuesSet.size > 0) {
+            const valuesType = `PropTypes.oneOf([${[...valuesSet].join(
+                ', '
+            )}])`;
+
+            if (typesSet.size > 0) {
+                typesSet.add(valuesType);
+            } else {
+                return valuesType;
+            }
         }
+
+        if (typesSet.size === 0) {
+            return 'PropTypes.any';
+        }
+        if (typesSet.size === 1) {
+            return typesSet.keys().next().value;
+        }
+        return `PropTypes.oneOfType([${[...typesSet].join(', ')}])`;
     }
 
-    fail();
+    throw new Error(`Failed to find propType for ${typeAsString}.`);
 }
 
 /**
