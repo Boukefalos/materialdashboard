@@ -31,11 +31,17 @@ function createPropType(
         return 'PropTypes.bool';
     }
 
-    if (ts.TypeFlags.NumberLike & sourceType.flags) {
+    if (
+        ts.TypeFlags.NumberLike & sourceType.flags ||
+        typeAsString === 'number & {}'
+    ) {
         return 'PropTypes.number';
     }
 
-    if (ts.TypeFlags.StringLike & sourceType.flags) {
+    if (
+        ts.TypeFlags.StringLike & sourceType.flags ||
+        typeAsString === 'string & {}'
+    ) {
         return 'PropTypes.string';
     }
 
