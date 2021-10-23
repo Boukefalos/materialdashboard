@@ -124,10 +124,7 @@ function convertComponentPropertiesToView(
             const typeAsString = checker.typeToString(property.type);
 
             try {
-                if (
-                    ['component', 'innerRef'].includes(property.name) ||
-                    property.name.startsWith('aria-')
-                ) {
+                if (property.name.startsWith('aria-')) {
                     throw new Error(`Skipping property ${property.name}.`);
                 }
 
