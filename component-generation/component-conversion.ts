@@ -1,3 +1,4 @@
+import {TypeReference} from '@ts-morph/common/lib/typescript';
 import * as ts from 'typescript';
 import {customizeComponent, SkippedProperty} from './component-customization';
 import {ComponentView, ComponentViewProperty} from './templating';
@@ -47,6 +48,14 @@ function createPropType(
 
     if ((ts.TypeFlags.Unknown | ts.TypeFlags.Any) & sourceType.flags) {
         return 'PropTypes.any';
+    }
+
+    if (sourceType.getSymbol()?.name === 'Array') {
+        const elementType = checker.getTypeArguments(
+            sourceType as TypeReference
+        )[0];
+        const elementPropType = createPropType(elementType, checker, true);
+        return `PropTypes.arrayOf(${elementPropType})`;
     }
 
     if (!allowComplexTypes) {
