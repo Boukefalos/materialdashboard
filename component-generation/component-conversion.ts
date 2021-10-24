@@ -15,9 +15,14 @@ class FunctionTypeError extends Error {}
  *
  * @param sourceType The type of the property for which the `PropType` must be created.
  * @param checker The type checker to use.
+ * @param propertyName The name of the property for which the type should be created.
  * @returns The `PropType` for this property.
  */
-function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
+function createPropType(
+    sourceType: ts.Type,
+    checker: ts.TypeChecker,
+    propertyName?: string
+): string {
     const typeAsString = checker.typeToString(sourceType);
 
     if (
@@ -50,7 +55,7 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
     }
 
     if (typeAsString === 'ReactNode') {
-        return 'PropTypes.node';
+        return propertyName === 'children' ? 'PropTypes.node' : 'PropTypes.any';
     }
 
     // The `sx` property is always typed as a generic `SxProps<T>`, and Python can't do better than converting those to
@@ -147,7 +152,7 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
         return `PropTypes.oneOfType([${[...typesSet].join(', ')}])`;
     }
 
-    if (ts.TypeFlags.Object & sourceType.flags) {
+    if (ts.TypeFlags.Object & sourceType.flags || typeAsString === 'object') {
         if (sourceType.getCallSignatures().length > 0) {
             throw new FunctionTypeError(
                 `${typeAsString} is a function type and should not be exposed.`
@@ -157,6 +162,14 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
         // Trying to define more precisely the object's properties can get messy when there's a lot of them.
         // Simply returning `any` for now.
         return 'PropTypes.any';
+    }
+
+    if (
+        ts.TypeFlags.TypeParameter & sourceType.flags &&
+        propertyName === 'component'
+    ) {
+        // Classes cannot be passed from Python, but strings can represent base HTML component types.
+        return 'PropTypes.string';
     }
 
     throw new Error(`Failed to find propType for ${typeAsString}.`);
@@ -188,21 +201,11 @@ function convertComponentPropertiesToView(
                     throw new Error(`Skipping property ${property.name}.`);
                 }
 
-                let propType: string;
-                // TODO(flo): Move inside `createPropType`.
-                if (
-                    typeAsString === 'ReactNode' &&
-                    property.name !== 'children'
-                ) {
-                    // Dash only supports the `children` property to pass child nodes. However other `ReactNode` properties
-                    // might still be worth exposing as `any` such that we can still pass a string to them for example.
-                    console.warn(
-                        `Defining node property ${property.name} as any instead of ReactNode.`
-                    );
-                    propType = 'PropTypes.any';
-                } else {
-                    propType = createPropType(property.type, checker);
-                }
+                const propType = createPropType(
+                    property.type,
+                    checker,
+                    property.name
+                );
 
                 return {...property, propType, forwardProperty: true};
             } catch (e) {
