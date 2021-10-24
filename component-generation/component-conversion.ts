@@ -23,7 +23,8 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
     if (
         (ts.TypeFlags.Boolean & sourceType.flags) === ts.TypeFlags.Boolean ||
         // It might happen that a boolean property might be declared as only a 'false' or 'true' literal.
-        typeAsString === 'false'
+        typeAsString === 'false' ||
+        typeAsString === 'true'
     ) {
         return 'PropTypes.bool';
     }
