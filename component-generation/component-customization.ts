@@ -79,6 +79,10 @@ export interface SkippedProperty {
      * The original documentation for the property.
      */
     documentation: string[];
+    /**
+     * Whether the property type is a callable (e.g. events).
+     */
+    isFunctionType: boolean;
 }
 
 /**

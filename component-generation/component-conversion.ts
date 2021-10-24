@@ -5,6 +5,12 @@ import {ComponentView, ComponentViewProperty} from './templating';
 import {ComponentDefinition, ComponentProperty} from './type-checking';
 
 /**
+ * Error thrown when the type for which the `PropType` should be created is a function. Function are not handled and
+ * this is what this error is for.
+ */
+class FunctionTypeError extends Error {}
+
+/**
  * Creates a string representing the `PropType` from the given TypeScript type.
  *
  * @param sourceType The type of the property for which the `PropType` must be created.
@@ -129,11 +135,15 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
         return `PropTypes.oneOfType([${[...typesSet].join(', ')}])`;
     }
 
-    // Converting all object-like properties to `any`, except functions, which should not be exposed.
-    if (
-        ts.TypeFlags.Object & sourceType.flags &&
-        sourceType.getCallSignatures().length === 0
-    ) {
+    if (ts.TypeFlags.Object & sourceType.flags) {
+        if (sourceType.getCallSignatures().length > 0) {
+            throw new FunctionTypeError(
+                `${typeAsString} is a function type and should not be exposed.`
+            );
+        }
+
+        // Trying to define more precisely the object's properties can get messy when there's a lot of them.
+        // Simply returning `any` for now.
         return 'PropTypes.any';
     }
 
@@ -187,6 +197,7 @@ function convertComponentPropertiesToView(
                 skippedProperties.push({
                     ...property,
                     typeAsString,
+                    isFunctionType: e instanceof FunctionTypeError,
                 });
             }
 
@@ -226,11 +237,15 @@ export function createView(
 
     if (skippedProperties.length > 0) {
         const skippedPropertiesNames = skippedProperties
+            .filter((p) => !p.isFunctionType && !p.name.startsWith('aria-'))
             .map((p) => p.name)
             .join(', ');
-        console.warn(
-            `Skipped properties for component ${componentView.name}: ${skippedPropertiesNames}`
-        );
+
+        if (skippedPropertiesNames.length > 0) {
+            console.warn(
+                `Skipped properties for component ${componentView.name}: ${skippedPropertiesNames}`
+            );
+        }
     }
     return componentView;
 }
