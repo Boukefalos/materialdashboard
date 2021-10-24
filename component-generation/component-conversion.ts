@@ -99,6 +99,14 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
         return `PropTypes.oneOfType([${[...typesSet].join(', ')}])`;
     }
 
+    // Converting all object-like properties to `any`, except functions, which should not be exposed.
+    if (
+        ts.TypeFlags.Object & sourceType.flags &&
+        sourceType.getCallSignatures().length === 0
+    ) {
+        return 'PropTypes.any';
+    }
+
     throw new Error(`Failed to find propType for ${typeAsString}.`);
 }
 
