@@ -58,6 +58,10 @@ function createPropType(
         return propertyName === 'children' ? 'PropTypes.node' : 'PropTypes.any';
     }
 
+    if (typeAsString === 'Element' || typeAsString === 'VirtualElement') {
+        return 'PropTypes.element';
+    }
+
     // The `sx` property is always typed as a generic `SxProps<T>`, and Python can't do better than converting those to
     // objects.
     if (/SxProps<.*>/.test(typeAsString)) {
