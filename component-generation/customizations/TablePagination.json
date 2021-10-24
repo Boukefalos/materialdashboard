@@ -1,0 +1,13 @@
+{
+    "documentation": "",
+    "persistentProps": [],
+    "extraProperties": [],
+    "events": {
+        "onPageChange": {
+            "code": "(e, page) => setProps({ page })"
+        },
+        "onRowsPerPageChange": {
+            "code": "(e) => setProps({ rowsPerPage: +e.target.value, page: 0 })"
+        }
+    }
+}
