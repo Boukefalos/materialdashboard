@@ -215,16 +215,10 @@ function addPersistenceProperties(
  * Adds base properties that should be present for all components if they do not exist already.
  *
  * @param component The component to which the properties should be added.
- * @param skippedProperties The properties that could not be converted automatically. If "base" properties are found in
- *     it, they will be added with the know PropType.
  */
-function addBaseProperties(
-    component: ComponentView,
-    skippedProperties: SkippedProperty[]
-) {
-    tryAddProperty(
-        component,
-        {
+function addBaseProperties(component: ComponentView) {
+    if (component.properties.findIndex((p) => p.name === 'id') < 0) {
+        tryAddProperty(component, {
             name: 'id',
             documentation: [
                 'The ID of this component, used to identify dash components in callbacks.\nThe ID needs to be unique across all of the components in an app.',
@@ -232,106 +226,28 @@ function addBaseProperties(
             propType: 'PropTypes.string',
             stringDefault: '',
             forwardProperty: true,
-        },
-        false
-    );
-
-    const classesPropertyIndex = skippedProperties.findIndex(
-        (p) => p.name === 'classes'
-    );
-    if (classesPropertyIndex >= 0) {
-        tryAddProperty(
-            component,
-            {
-                name: 'classes',
-                documentation:
-                    skippedProperties[classesPropertyIndex].documentation,
-                propType: 'PropTypes.object',
-                stringDefault: '',
-                forwardProperty: true,
-            },
-            false
-        );
-
-        skippedProperties.splice(classesPropertyIndex, 1);
+        });
     }
 
-    const stylePropertyIndex = skippedProperties.findIndex(
-        (p) => p.name === 'style'
-    );
-    if (stylePropertyIndex >= 0) {
-        tryAddProperty(
-            component,
-            {
-                name: 'style',
-                documentation:
-                    skippedProperties[stylePropertyIndex].documentation,
-                propType: 'PropTypes.object',
-                stringDefault: '',
-                forwardProperty: true,
-            },
-            false
-        );
-
-        skippedProperties.splice(stylePropertyIndex, 1);
-    }
-
-    const childrenPropertyIndex = skippedProperties.findIndex(
-        (p) => p.name === 'children'
-    );
-    if (childrenPropertyIndex >= 0) {
-        tryAddProperty(
-            component,
-            {
-                name: 'children',
-                documentation:
-                    skippedProperties[childrenPropertyIndex].documentation,
-                propType: 'PropTypes.node',
-                stringDefault: '',
-                forwardProperty: true,
-            },
-            false
-        );
-
-        skippedProperties.splice(childrenPropertyIndex, 1);
-    }
-
-    // This looks for skipped properties that accept an Element type. For those, the property is exposed as a string
+    // This looks for properties that accept an Element type. For those, the property is exposed as a string
     // that should be the ID of the element that will be fetched in the DOM.
-    let propertyIndex = 0;
-    while (propertyIndex < skippedProperties.length) {
-        const currentSkippedProperty = skippedProperties[propertyIndex];
-        const types = currentSkippedProperty.typeAsString.split(' | ');
-        const propertyName = currentSkippedProperty.name;
-
-        if (types.indexOf('Element') < 0) {
-            propertyIndex++;
-            continue;
+    component.properties.forEach((property) => {
+        if (property.propType !== 'PropTypes.element') {
+            return;
         }
 
-        const successfullyAdded = tryAddProperty(
-            component,
-            {
-                name: propertyName,
-                documentation: currentSkippedProperty.documentation,
-                propType: 'PropTypes.string',
-                stringDefault: '',
-                forwardProperty: false,
-            },
-            false
+        property.propType = 'PropTypes.string';
+        property.stringDefault = '';
+        property.forwardProperty = false;
+        property.documentation = property.documentation ?? [];
+        property.documentation.push(
+            'If specified, the ID of an existing element should be provided.'
         );
-
-        if (!successfullyAdded) {
-            propertyIndex++;
-            continue;
-        }
 
         component.extraCode.push(
-            `propsToForward.${propertyName} = document.getElementById(${propertyName});`
+            `propsToForward.${property.name} = document.getElementById(${property.name});`
         );
-
-        skippedProperties.splice(propertyIndex, 1);
-    }
+    });
 }
 
 /**
@@ -460,6 +376,6 @@ export function customizeComponent(
         }
     }
 
-    addBaseProperties(component, skippedProperties);
+    addBaseProperties(component);
     addBaseEvents(component, skippedProperties);
 }
