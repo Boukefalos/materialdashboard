@@ -37,6 +37,12 @@ export interface ComponentDefinition {
 }
 
 /**
+ * Error thrown when a supposedly component type does not conform to the expected format.
+ * This usually simply means that the type represents something else.
+ */
+export class ComponentNotFound extends Error {}
+
+/**
  * Extracts the properties from a component TypeScript type.
  *
  * @param componentType The TypeScript Type for the component.
@@ -50,14 +56,16 @@ function getPropertiesFromComponentType(
     // The component is a callable...
     const callSignatures = componentType.getCallSignatures();
     if (callSignatures.length === 0) {
-        throw new Error('Expected to find a call signature for component.');
+        throw new ComponentNotFound(
+            'Expected to find a call signature for component.'
+        );
     }
 
     // ...its first (and single) argument should be the component properties...
     const componentFuncSignature = callSignatures[0];
     const callParameters = componentFuncSignature.getParameters();
     if (callParameters.length !== 1) {
-        throw new Error(
+        throw new ComponentNotFound(
             'Expected to find a call signature with a single props parameter for component.'
         );
     }
@@ -65,10 +73,9 @@ function getPropertiesFromComponentType(
 
     // ...and it should return an element.
     const returnType = componentFuncSignature.getReturnType();
-    const returnTypeName = returnType.getSymbol().getName();
+    const returnTypeName = returnType.getSymbol()?.getName();
     if (returnTypeName !== 'Element' && returnTypeName !== 'ReactElement') {
-        // TODO(flo): Make this check more robust.
-        throw new Error(
+        throw new ComponentNotFound(
             `Component function should return an Element, found ${returnTypeName}.`
         );
     }
@@ -88,9 +95,6 @@ function getPropertiesFromComponentType(
             documentation: p
                 .getDocumentationComment(checker)
                 .flatMap((c) => c.text.split('\n')),
-            // TODO(flo): This needs more work as the defaults might be values other than literals, which will fail to
-            // resolve once inserted in the generated component.
-            // stringDefault: p.getJsDocTags().find(t => t.name === 'default')?.text,
             stringDefault: '',
             type: checker.getTypeOfSymbolAtLocation(
                 p,

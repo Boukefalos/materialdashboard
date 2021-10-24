@@ -5,18 +5,8 @@
         "import { createTheme } from '@mui/material/styles';"
     ],
     "extraCode": [
-        "propsToForward.theme = createTheme(theme);"
+        "propsToForward.theme = createTheme(propsToForward.theme);"
     ],
-    "extraProperties": [
-        {
-            "name": "theme",
-            "documentation": [
-                "The theme that will be applied to all children of this component."
-            ],
-            "stringDefault": "",
-            "propType": "PropTypes.object",
-            "forwardProperty": false
-        }
-    ],
+    "extraProperties": [],
     "events": {}
 }

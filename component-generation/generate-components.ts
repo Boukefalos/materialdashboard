@@ -3,7 +3,7 @@ import {Project, SourceFile} from 'ts-morph';
 import * as ts from 'typescript';
 import {createView} from './component-conversion';
 import {ComponentView, writeComponents} from './templating';
-import {createComponentFromNode} from './type-checking';
+import {ComponentNotFound, createComponentFromNode} from './type-checking';
 
 // TypeScript definitions for Material-UI, including all available components.
 const INDEX_FILE = require.resolve('@mui/material/index.d.ts');
@@ -28,19 +28,23 @@ function getViewsForExportedComponentsInSourceFile(
         const declaration = keyDeclarations[0];
 
         try {
-            console.log(
-                `Trying to extract component from declaration ${key}...`
-            );
-
             const component = createComponentFromNode(
                 key,
                 declaration.compilerNode,
                 checker
             );
+
+            console.log(`Creating view for component ${key}...`);
+
             const componentView = createView(component, checker);
             componentViews.push(componentView);
         } catch (e) {
-            console.warn(
+            if (e instanceof ComponentNotFound) {
+                // Some of the declarations not being components is expected. They should simply be ignored.
+                return;
+            }
+
+            console.error(
                 `Error while extracting component from declaration ${key}: ${e}`
             );
         }
