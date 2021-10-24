@@ -62,6 +62,8 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
     if (sourceType.isIntersection()) {
         const intersectionType = sourceType as ts.IntersectionType;
 
+        let intersectsWithFunctionType = false;
+
         const resolvedTypes = intersectionType.types.flatMap((type) => {
             if (ts.TypeFlags.Literal & type.flags) {
                 const value = checker.typeToString(type);
@@ -70,15 +72,24 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
 
             try {
                 return [createPropType(type, checker)];
-            } catch {
+            } catch (e) {
+                intersectsWithFunctionType =
+                    intersectsWithFunctionType ||
+                    e instanceof FunctionTypeError;
                 return [];
             }
         });
 
         if (resolvedTypes.length === 0) {
-            throw new Error(
-                `Failed to find propType for intersection ${typeAsString}.`
-            );
+            if (intersectsWithFunctionType) {
+                throw new FunctionTypeError(
+                    `Failed to find propType for intersection including a function type ${typeAsString}.`
+                );
+            } else {
+                throw new Error(
+                    `Failed to find propType for intersection ${typeAsString}.`
+                );
+            }
         } else {
             let resolvedType = resolvedTypes[0];
 
@@ -237,14 +248,14 @@ export function createView(
     customizeComponent(componentView, skippedProperties);
 
     if (skippedProperties.length > 0) {
-        const skippedPropertiesNames = skippedProperties
+        const skippedPropertiesString = skippedProperties
             .filter((p) => !p.isFunctionType && !p.name.startsWith('aria-'))
-            .map((p) => p.name)
-            .join(', ');
+            .map((p) => `  - ${p.name}: ${p.typeAsString}`)
+            .join('\n');
 
-        if (skippedPropertiesNames.length > 0) {
+        if (skippedPropertiesString.length > 0) {
             console.warn(
-                `Skipped properties for component ${componentView.name}: ${skippedPropertiesNames}`
+                `Skipped properties for component ${componentView.name}:\n${skippedPropertiesString}`
             );
         }
     }
