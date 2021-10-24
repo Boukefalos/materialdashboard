@@ -3,26 +3,7 @@
     "persistentProps": [
         "value"
     ],
-    "extraProperties": [
-        {
-            "name": "value",
-            "documentation": [
-                "The value of the slider.\nFor ranged sliders, provide an array with two values."
-            ],
-            "stringDefault": "0",
-            "propType": "PropTypes.oneOfType([PropTypes.number, PropTypes.arrayOf(PropTypes.number)])",
-            "forwardProperty": true
-        },
-        {
-            "name": "marks",
-            "documentation": [
-                "Marks indicate predetermined values to which the user can move the slider.\nIf `true` the marks are spaced according the value of the `step` prop.\nIf an array, it should contain objects with `value` and an optional `label` keys."
-            ],
-            "stringDefault": "",
-            "propType": "PropTypes.oneOfType([PropTypes.bool, PropTypes.arrayOf(PropTypes.object)])",
-            "forwardProperty": true
-        }
-    ],
+    "extraProperties": [],
     "events": {
         "onChange": {
             "code": "(e, value) => setProps({ value })"
