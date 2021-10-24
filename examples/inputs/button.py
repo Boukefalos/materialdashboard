@@ -5,10 +5,10 @@ from dash.development.base_component import Component
 import materialdashboard as md
 from typing import List, Union
 
-from .base import BaseInputExample
+from utils import BaseExampleItem
 
 
-class ButtonInputExample(BaseInputExample):
+class ButtonInputExample(BaseExampleItem):
     """Showcases how the button component can be used with various styles."""
 
     def __init__(self):
