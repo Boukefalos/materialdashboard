@@ -30,6 +30,16 @@ interface ComponentCustomizationEvents {
 }
 
 /**
+ * A single custom property to add to a component.
+ */
+interface ComponentCustomizationProperty extends ComponentViewProperty {
+    /**
+     * Whether the custom property should overwrite the component property if it already exists.
+     */
+    overwrite?: boolean;
+}
+
+/**
  * The interface defining the schema of customization JSON objects for each component.
  */
 interface ComponentCustomization {
@@ -44,7 +54,7 @@ interface ComponentCustomization {
     /**
      * A list of additional properties to add to the component.
      */
-    extraProperties: ComponentViewProperty[];
+    extraProperties: ComponentCustomizationProperty[];
     /**
      * A list of events from the underlying component to handle.
      */
@@ -112,24 +122,21 @@ function loadCustomization(
  * Tries to add a new property to a component, checking if the property already exists beforehand.
  *
  * @param component The component to which the property should be added.
- * @param property The property to add.
+ * @param customProperty The property to add.
  * @param throwIfExists Whether an error should be thrown if the property already exists.
  * @returns `true` if the property was successfully added.
  */
 function tryAddProperty(
     component: ComponentView,
-    property: ComponentViewProperty,
-    throwIfExists: boolean
+    customProperty: ComponentCustomizationProperty
 ): boolean {
-    if (component.properties.findIndex((p) => p.name === property.name) >= 0) {
-        if (throwIfExists) {
-            throw new Error(`Property ${property.name} already exists.`);
-        } else {
-            // TODO(flo): Provide a "silent override" behavior in the future. This might be useful if we want to provide
-            // access to component properties with types unsupported by Dash. We'll just replace the original property,
-            // and provide some custom code for the conversion.
-            return false;
-        }
+    const {overwrite, ...property} = customProperty;
+    if (
+        component.properties.findIndex((p) => p.name === customProperty.name) >
+            0 &&
+        !overwrite
+    ) {
+        throw new Error(`Property ${customProperty.name} already exists.`);
     }
 
     component.properties.push(property);
@@ -169,52 +176,39 @@ function addPersistenceProperties(
     component: ComponentView,
     persistedProperties: string[]
 ) {
-    tryAddProperty(
-        component,
-        {
-            name: 'persistence',
-            documentation: [
-                "Used to allow user interactions in this component to be persisted when\n the component - or the page - is refreshed. If `persisted` is truthy and\n hasn't changed from its previous value, a `value` that the user has\n changed while using the app will keep that change, as long as\n the new `value` also matches what was given originally.\nUsed in conjunction with `persistence_type`.",
-            ],
-            propType:
-                'PropTypes.oneOfType([PropTypes.bool, PropTypes.string, PropTypes.number])',
-            stringDefault: '',
-            forwardProperty: false,
-        },
-        true
-    );
+    tryAddProperty(component, {
+        name: 'persistence',
+        documentation: [
+            "Used to allow user interactions in this component to be persisted when\n the component - or the page - is refreshed. If `persisted` is truthy and\n hasn't changed from its previous value, a `value` that the user has\n changed while using the app will keep that change, as long as\n the new `value` also matches what was given originally.\nUsed in conjunction with `persistence_type`.",
+        ],
+        propType:
+            'PropTypes.oneOfType([PropTypes.bool, PropTypes.string, PropTypes.number])',
+        stringDefault: '',
+        forwardProperty: false,
+    });
 
     const propertyList = `[${persistedProperties
         .map((p) => `'${p}'`)
         .join(',')}]`;
-    tryAddProperty(
-        component,
-        {
-            name: 'persisted_props',
-            documentation: [
-                'Properties whose user interactions will persist after refreshing the\n component or the page. Since only `value` is allowed this prop can\nnormally be ignored.',
-            ],
-            propType: `PropTypes.arrayOf(PropTypes.oneOf(${propertyList}))`,
-            stringDefault: propertyList,
-            forwardProperty: false,
-        },
-        true
-    );
+    tryAddProperty(component, {
+        name: 'persisted_props',
+        documentation: [
+            'Properties whose user interactions will persist after refreshing the\n component or the page. Since only `value` is allowed this prop can\nnormally be ignored.',
+        ],
+        propType: `PropTypes.arrayOf(PropTypes.oneOf(${propertyList}))`,
+        stringDefault: propertyList,
+        forwardProperty: false,
+    });
 
-    tryAddProperty(
-        component,
-        {
-            name: 'persistence_type',
-            documentation: [
-                'Where persisted user changes will be stored:\n memory: only kept in memory, reset on page refresh.\n local: window.localStorage, data is kept after the browser quit.\n session: window.sessionStorage, data is cleared once the browser quit.\n location: window.location, data appears in the URL and can be shared with others.',
-            ],
-            propType:
-                "PropTypes.oneOf(['local', 'session', 'memory', 'location'])",
-            stringDefault: "'local'",
-            forwardProperty: false,
-        },
-        true
-    );
+    tryAddProperty(component, {
+        name: 'persistence_type',
+        documentation: [
+            'Where persisted user changes will be stored:\n memory: only kept in memory, reset on page refresh.\n local: window.localStorage, data is kept after the browser quit.\n session: window.sessionStorage, data is cleared once the browser quit.\n location: window.location, data appears in the URL and can be shared with others.',
+        ],
+        propType: "PropTypes.oneOf(['local', 'session', 'memory', 'location'])",
+        stringDefault: "'local'",
+        forwardProperty: false,
+    });
 }
 
 /**
@@ -391,19 +385,15 @@ function addBaseEvents(
         (p) => p.name === 'onClick'
     );
     if (onClickPropertyIndex >= 0) {
-        tryAddProperty(
-            component,
-            {
-                name: 'n_clicks',
-                documentation: [
-                    'An integer that represents the number of times that this element has been clicked on.',
-                ],
-                propType: 'PropTypes.number',
-                stringDefault: '0',
-                forwardProperty: false,
-            },
-            true
-        );
+        tryAddProperty(component, {
+            name: 'n_clicks',
+            documentation: [
+                'An integer that represents the number of times that this element has been clicked on.',
+            ],
+            propType: 'PropTypes.number',
+            stringDefault: '0',
+            forwardProperty: false,
+        });
 
         tryAddEvent(
             component,
@@ -462,7 +452,7 @@ export function customizeComponent(
         }
 
         customization.extraProperties.forEach((p) => {
-            tryAddProperty(component, p, true);
+            tryAddProperty(component, p);
         });
 
         if (customization.events) {
