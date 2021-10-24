@@ -22,17 +22,11 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
         return 'PropTypes.bool';
     }
 
-    if (
-        ts.TypeFlags.NumberLike & sourceType.flags ||
-        typeAsString === 'number & {}'
-    ) {
+    if (ts.TypeFlags.NumberLike & sourceType.flags) {
         return 'PropTypes.number';
     }
 
-    if (
-        ts.TypeFlags.StringLike & sourceType.flags ||
-        typeAsString === 'string & {}'
-    ) {
+    if (ts.TypeFlags.StringLike & sourceType.flags) {
         return 'PropTypes.string';
     }
 
@@ -58,6 +52,41 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
         return 'PropTypes.object';
     }
 
+    if (sourceType.isIntersection()) {
+        const intersectionType = sourceType as ts.IntersectionType;
+
+        const resolvedTypes = intersectionType.types.flatMap((type) => {
+            if (ts.TypeFlags.Literal & type.flags) {
+                const value = checker.typeToString(type);
+                return [`PropTypes.oneOf([${value}])`];
+            }
+
+            try {
+                return [createPropType(type, checker)];
+            } catch {
+                return [];
+            }
+        });
+
+        if (resolvedTypes.length === 0) {
+            throw new Error(
+                `Failed to find propType for intersection ${typeAsString}.`
+            );
+        } else {
+            let resolvedType = resolvedTypes[0];
+
+            if (resolvedTypes.length > 1) {
+                // If there is better than just setting `any`, going for it.
+                const nonAnyType = resolvedTypes.find(
+                    (type) => type !== 'PropTypes.any'
+                );
+                resolvedType = nonAnyType ?? resolvedType;
+            }
+
+            return resolvedType;
+        }
+    }
+
     if (sourceType.isUnion()) {
         const unionType = sourceType as ts.UnionType;
 
@@ -71,9 +100,7 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
                 try {
                     typesSet.add(createPropType(type, checker));
                 } catch (e) {
-                    console.warn(
-                        `Failed to create property type for subtype in union: ${e}`
-                    );
+                    return;
                 }
             }
         });
@@ -91,6 +118,9 @@ function createPropType(sourceType: ts.Type, checker: ts.TypeChecker): string {
         }
 
         if (typesSet.size === 0) {
+            console.warn(
+                `Could not resolve any types in union ${typeAsString}. Setting as any.`
+            );
             return 'PropTypes.any';
         }
         if (typesSet.size === 1) {
